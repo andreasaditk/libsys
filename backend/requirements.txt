@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+groq
+pydantic
+requests
+python-dotenv
+langdetect
+deep-translator
