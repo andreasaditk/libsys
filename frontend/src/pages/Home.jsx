@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Search, Loader2, Sparkles, BookOpen, ArrowLeft, ExternalLink, FileText, Eye, EyeOff, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://libsys-backend-hkck.onrender.com';
 
 const Home = () => {
   const [query, setQuery] = useState('');
