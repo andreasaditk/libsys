@@ -94,13 +94,14 @@ const Home = () => {
         responseType: 'blob'
       });
       
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const url = window.URL.createObjectURL(res.data);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `Ringkasan_${safeTitle.substring(0, 30)}.${format}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
       alert('Gagal mengekspor dokumen dalam format ' + format.toUpperCase());
