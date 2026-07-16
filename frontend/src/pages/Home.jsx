@@ -10,6 +10,7 @@ const Home = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFreeOnly, setShowFreeOnly] = useState(true);
+  const [searchMode, setSearchMode] = useState('academic');
   
   // Reader & Summary States
   const [selectedBook, setSelectedBook] = useState(null);
@@ -26,7 +27,8 @@ const Home = () => {
     setReaderMode(false);
     
     try {
-      const res = await axios.post(`${API_URL}/ai/search`, { query, free_only: showFreeOnly });
+      const endpoint = searchMode === 'news' ? '/ai/news' : '/ai/search';
+      const res = await axios.post(`${API_URL}${endpoint}`, { query, free_only: showFreeOnly });
       setResults(res.data.results || []);
     } catch (err) {
       console.error(err);
@@ -114,8 +116,31 @@ const Home = () => {
         <>
           <div className="hero-section">
             <h1>Libsys</h1>
-            <p className="hero-subtitle">Mesin pencari khusus jurnal ilmiah, paper teknologi, referensi sejarah, geografi, dan berbagai disiplin ilmu lainnya (Free-to-Access).</p>
+            <p className="hero-subtitle">
+              {searchMode === 'academic' 
+                ? "Mesin pencari khusus jurnal ilmiah, paper teknologi, referensi sejarah, geografi, dan berbagai disiplin ilmu lainnya."
+                : "Mesin pencari berita universal dari berbagai portal berita terkini di seluruh dunia."}
+            </p>
             
+            <div className="mode-toggle" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+              <button 
+                type="button" 
+                className={`btn ${searchMode === 'academic' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ borderRadius: '999px', padding: '0.5rem 1.5rem', fontWeight: 'bold' }}
+                onClick={() => setSearchMode('academic')}
+              >
+                Jurnal Akademik
+              </button>
+              <button 
+                type="button" 
+                className={`btn ${searchMode === 'news' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ borderRadius: '999px', padding: '0.5rem 1.5rem', fontWeight: 'bold' }}
+                onClick={() => setSearchMode('news')}
+              >
+                Berita Global
+              </button>
+            </div>
+
             <form onSubmit={handleSearch} className="search-bar glass">
               <Search className="search-icon" size={24} />
               <input 
@@ -130,18 +155,20 @@ const Home = () => {
             </form>
             
             <div className="search-filters" style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
-              <button 
-                type="button" 
-                className="btn btn-outline" 
-                style={{ borderRadius: '999px', padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}
-                onClick={() => setShowFreeOnly(!showFreeOnly)}
-              >
-                {showFreeOnly ? (
-                  <><EyeOff size={16} /> Show Free Only</>
-                ) : (
-                  <><Eye size={16} /> Show All</>
-                )}
-              </button>
+              {searchMode === 'academic' && (
+                <button 
+                  type="button" 
+                  className="btn btn-outline" 
+                  style={{ borderRadius: '999px', padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}
+                  onClick={() => setShowFreeOnly(!showFreeOnly)}
+                >
+                  {showFreeOnly ? (
+                    <><EyeOff size={16} /> Show Free Only</>
+                  ) : (
+                    <><Eye size={16} /> Show All</>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

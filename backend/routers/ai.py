@@ -166,6 +166,51 @@ def search_books(query: SearchQuery):
         print(f"Error fetching from OpenAlex: {e}")
         raise HTTPException(status_code=500, detail="Gagal mencari literatur dari OpenAlex API.")
 
+import xml.etree.ElementTree as ET
+
+@router.post("/news")
+def search_news(query: SearchQuery):
+    try:
+        search_str = query.query.strip()
+        # Optimize query for news (optional, but we'll use raw for google news)
+        url = f"https://news.google.com/rss/search?q={search_str}&hl=id&gl=ID&ceid=ID:id"
+        
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        
+        root = ET.fromstring(resp.text)
+        results = []
+        
+        # Parse top 20 items
+        for item in root.findall('.//item')[:20]:
+            title = item.find('title').text if item.find('title') is not None else "Judul Tidak Diketahui"
+            link = item.find('link').text if item.find('link') is not None else ""
+            pub_date = item.find('pubDate').text if item.find('pubDate') is not None else ""
+            source_elem = item.find('source')
+            source = source_elem.text if source_elem is not None else "Berita Universal"
+            
+            # Clean up title (Google appends ' - Source' at the end)
+            clean_title = title.rsplit(' - ', 1)[0] if ' - ' in title else title
+            
+            # Use title as content preview since full text isn't in RSS
+            content_preview = f"HEADLINE BERITA: {clean_title}"
+            
+            results.append({
+                "title": clean_title,
+                "author": source,
+                "type": "Berita",
+                "language": "Indonesian",
+                "source_url": link,
+                "content_preview": content_preview,
+                "is_oa": True # Always free to access
+            })
+            
+        return {"results": results}
+        
+    except Exception as e:
+        print(f"News Search error: {e}")
+        raise HTTPException(status_code=500, detail="Gagal mengambil berita terbaru")
+
 @router.post("/summarize")
 def summarize_book(query: SummaryQuery):
     if not client:
@@ -173,28 +218,29 @@ def summarize_book(query: SummaryQuery):
 
     if query.summary_type == "detailed":
         prompt = f"""
-        You are an expert analyst. Provide a highly detailed, comprehensive, and clear summary of the following document.
+        You are an expert analyst and journalist. Provide a highly detailed, comprehensive, and clear summary of the following document.
         Title: {query.title}
         Content Preview: {query.content_preview}
         
         Your summary MUST:
         1. Be structured using Markdown (headings, bold text, bullet points).
-        2. Deeply analyze the core concepts, methodologies (if any), and main takeaways.
-        3. Explain the value of reading this document to the user.
-        4. Be written in Indonesian (Bahasa Indonesia) regardless of the document's original language.
-        5. Provide a lengthy and comprehensive explanation of every detail mentioned.
+        2. Deeply analyze the core concepts and main takeaways.
+        3. Be written in Indonesian (Bahasa Indonesia).
+        4. Provide a lengthy and comprehensive explanation of every detail mentioned.
+        5. IMPORTANT: If the content preview is just a 'HEADLINE BERITA', use your general knowledge to explain the background context, implications, and analytical details of what that news topic is likely about.
         """
     else:
         prompt = f"""
-        You are an expert analyst. Provide a concise summary focusing only on the main points of the following document.
+        You are an expert analyst. Provide a concise summary focusing only on the main points.
         Title: {query.title}
         Content Preview: {query.content_preview}
         
         Your summary MUST:
         1. Be structured using Markdown (bullet points preferred).
-        2. Highlight only the core concepts and main takeaways.
+        2. Highlight only the core concepts.
         3. Be brief and to the point.
-        4. Be written in Indonesian (Bahasa Indonesia) regardless of the document's original language.
+        4. Be written in Indonesian (Bahasa Indonesia).
+        5. IMPORTANT: If the content preview is just a 'HEADLINE BERITA', briefly explain what this news implies based on your general knowledge.
         """
 
     try:
