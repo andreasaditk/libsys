@@ -117,9 +117,7 @@ const Home = () => {
           <div className="hero-section">
             <h1>Libsys</h1>
             <p className="hero-subtitle">
-              {searchMode === 'academic' 
-                ? "Mesin pencari khusus jurnal ilmiah, paper teknologi, referensi sejarah, geografi, dan berbagai disiplin ilmu lainnya."
-                : "Mesin pencari berita universal dari berbagai portal berita terkini di seluruh dunia."}
+              Mesin pencari cerdas untuk eksplorasi jurnal ilmiah, referensi akademis, hingga berita global terkini dari berbagai penjuru dunia.
             </p>
             
             <div className="mode-toggle" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '1.5rem' }}>
