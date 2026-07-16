@@ -13,6 +13,17 @@
   --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
 }
 
+body.dark {
+  --primary-color: #818cf8;
+  --primary-hover: #6366f1;
+  --bg-gradient-start: #0f172a;
+  --bg-gradient-end: #1e293b;
+  --card-bg: rgba(30, 41, 59, 0.85);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
 * {
   margin: 0;
   padding: 0;
